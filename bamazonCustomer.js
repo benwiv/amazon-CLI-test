@@ -32,8 +32,35 @@ const showProducts = function(){
   });
 };
 
+const updateStock = function(qty,item) {
+  con.query(
+    'UPDATE products SET ? WHERE ?',
+    [
+      {
+        stock_qty: (stock_qty-qty)
+      },
+      {
+        item_id:item
+      }
+    ],
+    function (err,res) {
+      if (err) throw err;
+      resetPrompt();
+    }
+  )
+}
 
-//=========BEGIN CLI APPLICATION=========//
+const resetPrompt = function() {
+  // inquirer
+  //   .prompt([
+  //     {
+
+  //     }
+  //   ])
+  console.log('reset!');
+}
+
+//=========BEGIN CLI APPLICATION=========// 
 const chooseProduct = function () {
   inquirer
   .prompt([
@@ -51,8 +78,8 @@ const chooseProduct = function () {
   .then(function(input) {
     let itemID = input.ID;
     let itemQty = parseInt(input.qty);
-    //pull current quantity
-    connection.query(
+
+    con.query(
       "SELECT stock_qty FROM products WHERE ?",
       {
         item_id: itemID
@@ -62,11 +89,11 @@ const chooseProduct = function () {
         let currentQty = res[0].stock_qty;
         if ((currentQty - itemQty) > 0) {
           console.log(`The product is in stock! Your order will now be processed.`);
-          // removeQty(itemId, itemQty);
+          updateStock(itemQty,itemID);
         } 
         else {
           console.log(`Sorry, that product is not currently in stock and we cannot take your order at this time.`);
-          // resetPrompt();
+          resetPrompt();
         }
       }
     );
