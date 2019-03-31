@@ -12,7 +12,8 @@ const con = mysql.createConnection({
 
 con.connect((err) => {
   if (err) throw err;
-  console.log(`connected as user ID: ${con.threadId}`);
+  // console.log(`connected as user ID: ${con.threadId}`);
+  // console.log(`connected as user ID: ${con.threadId}`);
 });
 
 const table = new formatTable({ head: ['Item ID', 'Product', 'Price'] });
@@ -27,11 +28,50 @@ const showProducts = function(){
         [`${product.item_id}`, `${product.product_name}`, `${product.price}`]);
     }
     console.log(table.toString());
+    chooseProduct();
   });
 };
 
 
-//   BEGIN CLI APPLICATION
+//=========BEGIN CLI APPLICATION=========//
+const chooseProduct = function () {
+  inquirer
+  .prompt([
+    {
+      type: "input",
+      message: "Please take a look at the available products and their prices above. Type in the Item ID # for the product you wish to purchase: ",
+      name: "ID"
+    },
+    {
+      type: "input",
+      message: "Please type the quanity you wish to purchase (integer values only): ",
+      name: "qty"
+    }
+  ])
+  .then(function(input) {
+    let itemID = input.ID;
+    let itemQty = parseInt(input.qty);
+    //pull current quantity
+    connection.query(
+      "SELECT stock_qty FROM products WHERE ?",
+      {
+        item_id: itemID
+      },
+      function(err, res) {
+        if (err) throw err;
+        let currentQty = res[0].stock_qty;
+        if ((currentQty - itemQty) > 0) {
+          console.log(`The product is in stock! Your order will now be processed.`);
+          // removeQty(itemId, itemQty);
+        } 
+        else {
+          console.log(`Sorry, that product is not currently in stock and we cannot take your order at this time.`);
+          // resetPrompt();
+        }
+      }
+    );
+  });
+}
 
-
+// chooseProduct();
 showProducts();
