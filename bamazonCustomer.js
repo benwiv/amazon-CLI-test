@@ -32,12 +32,12 @@ const showProducts = function(){
   });
 };
 
-const updateStock = function(qty,item) {
+const updateStock = function(stockQty, qty,item) {
   con.query(
     'UPDATE products SET ? WHERE ?',
     [
       {
-        stock_qty: (stock_qty-qty)
+        stock_qty:(stockQty-qty)
       },
       {
         item_id:item
@@ -89,7 +89,7 @@ const chooseProduct = function () {
         let currentQty = res[0].stock_qty;
         if ((currentQty - itemQty) > 0) {
           console.log(`The product is in stock! Your order will now be processed.`);
-          updateStock(itemQty,itemID);
+          updateStock(currentQty, itemQty,itemID);
         } 
         else {
           console.log(`Sorry, that product is not currently in stock and we cannot take your order at this time.`);
